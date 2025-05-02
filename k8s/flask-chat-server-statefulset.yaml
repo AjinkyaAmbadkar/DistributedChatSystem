@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: flask-chat-server
+spec:
+  serviceName: flask-chat-server 
+  replicas: 4  # Scale to 4 replicas
+  selector:
+    matchLabels:
+      app: flask-chat-server
+  template:
+    metadata:
+      labels:
+        app: flask-chat-server
+    spec:
+      containers:
+        - name: flask-chat-server
+          image: ajambadk/flask-chat:debug  # Replace with your Flask app Docker image
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5050
+          env:
+            - name: ROOM_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name  # This will dynamically assign each pod a different room
+                  env:
+            - name: ZK_SERVERS
+              value: "zookeeper:2181"
+            - name: REDIS_HOST
+              value: "redis"
+            - name: REDIS_PORT
+              value: "6379"
